@@ -1,0 +1,96 @@
+#******************************************************************************
+#
+# Makefile
+#
+# Copyright (c) 2013 Roger Ye.  All rights reserved.
+# Software License Agreement
+# 
+# 
+# THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+# NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+# NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. The AUTHOR SHALL NOT, UNDER
+# ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+# DAMAGES, FOR ANY REASON WHATSOEVER.
+#
+#******************************************************************************
+
+# This is the makefile for goldfish serial device testing
+
+#
+# The base directory.
+#
+ROOT=.
+PROJECTNAME=hello_qemu
+
+#
+# Include the common make definitions.
+#
+include ${ROOT}/makedefs.arm
+
+CFLAGS+=-D__BARE_METAL__
+AFLAGS+=-D__BARE_METAL__
+
+#
+# Where to find source files that do not live in this directory.
+#
+VPATH=drivers
+
+#
+# Where to find header files that do not live in the source directory.
+#
+IPATH=..
+IPATH+=include
+
+#
+# The default rule, which causes the ${PROJECTNAME} example to be built.
+#
+all: ${COMPILER}
+all: ${COMPILER}/${PROJECTNAME}.axf
+
+#
+# The rule to debug the target using Android emulator.
+#
+debug:
+	@ddd --debugger arm-none-eabi-gdb ${COMPILER}/${PROJECTNAME}.axf &
+	@xterm -e "emulator -verbose -show-kernel -netfast -avd hd2 -shell -qemu -s -S -kernel ${COMPILER}/${PROJECTNAME}.axf"
+
+debug22:
+	@ddd --debugger arm-none-eabi-gdb ${COMPILER}/${PROJECTNAME}.axf &
+	@xterm -e "/home/seed/Desktop/test/sdk/objs22/emulator64-arm -verbose -show-kernel -netfast -avd hd2 -shell -qemu -s -S -kernel ${COMPILER}/${PROJECTNAME}.axf"
+
+#
+# The rule to debug the target using Android emulator.
+#
+nm:
+	@arm-none-eabi-nm -n ${COMPILER}/${PROJECTNAME}.axf
+
+#
+# The rule to clean out all the build products.
+#
+clean:
+	@rm -rf ${COMPILER} ${wildcard *~}
+
+#
+# The rule to create the target directory.
+#
+${COMPILER}:
+	@mkdir -p ${COMPILER}
+
+#
+# Rules for building the ${PROJECTNAME} example.
+#
+${COMPILER}/${PROJECTNAME}.axf: ${COMPILER}/${PROJECTNAME}.o
+${COMPILER}/${PROJECTNAME}.axf: ${COMPILER}/startup.o
+${COMPILER}/${PROJECTNAME}.axf: ${COMPILER}/serial_goldfish.o
+${COMPILER}/${PROJECTNAME}.axf: ${COMPILER}/goldfish_uart.o
+${COMPILER}/${PROJECTNAME}.axf: ${PROJECTNAME}.ld
+SCATTERgcc_${PROJECTNAME}=${PROJECTNAME}.ld
+ENTRY_${PROJECTNAME}=ResetISR
+
+#
+# Include the automatically generated dependency files.
+#
+ifneq (${MAKECMDGOALS},clean)
+-include ${wildcard ${COMPILER}/*.d} __dummy__
+endif

@@ -63,11 +63,6 @@ debug20:
 	@ddd --debugger arm-none-eabi-gdb ${COMPILER}/${PROJECTNAME}.axf &
 	@xterm -e "../sdk/objs20/emulator -verbose -show-kernel -netfast -avd hd2 -shell -qemu -s -S -kernel ${COMPILER}/${PROJECTNAME}.axf"
 
-debugwa:
-	@ddd --debugger arm-none-eabi-gdb ${COMPILER}/${PROJECTNAME}.axf &
-	emulator -verbose -show-kernel -netfast -avd hd2 -shell -system ../sdk/system-images/android-15/default/armeabi-v7a/system.img
- -qemu -monitor telnet::6666,server -s -S -kernel ${COMPILER}/${PROJECTNAME}.bin
-
 
 #
 # The rule to debug the target using Android emulator.
